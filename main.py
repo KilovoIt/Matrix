@@ -3,8 +3,26 @@ import pygame as pg
 
 
 class Matrix:
-    def __init__(self, app):
-        pass
+    def __init__(self, app, font_size=40):
+        self.app = app
+        self.FONT_SIZE = font_size
+        self.SIZE = self.ROWS, self.COLS = app.HEIGHT // font_size, app.WIDTH // font_size
+        self.katakana = np.array([chr(int('0x30a0', 16) + i) for i in range(96)])
+        self.font = pg.font.SysFont('ms mincho', font_size, bold=True)
+
+        self.matrix = np.random.choice(self.katakana, self.SIZE)
+
+
+    def run(self):
+        self.draw()
+
+    def draw(self):
+        for y, row in enumerate(self.matrix):
+            for x, char in enumerate(row):
+                pos = x * self.FONT_SIZE, y * self.FONT_SIZE
+                char = self.font.render(char, False, (0, 170, 0))
+                self.app.surface.blit(char, pos)
+
 
 class MatrixVision:
     def __init__(self):
@@ -17,6 +35,7 @@ class MatrixVision:
 
     def draw(self):
         self.surface.fill(pg.Color('black'))
+        self.matrix.run()
         self.screen.blit(self.surface, (0,0))
 
     def run(self):
