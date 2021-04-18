@@ -3,7 +3,7 @@ import pygame as pg
 
 
 class Matrix:
-    def __init__(self, app, font_size=40):
+    def __init__(self, app, font_size=8):
         self.app = app
         self.FONT_SIZE = font_size
         self.SIZE = self.ROWS, self.COLS = app.HEIGHT // font_size, app.WIDTH // font_size
@@ -14,6 +14,14 @@ class Matrix:
         self.char_intervals = np.random.randint(20, 50, size=self.SIZE)
         self.cols_speed = np.random.randint(0, 500, size=self.SIZE)
         self.prerendered_chars = self.get_prerendered_chars()
+
+        self.image = self.get_image('USDA.png')
+
+    def get_image(self, path_to_file):
+        image = pg.image.load(path_to_file)
+        image = pg.transform.scale(image, self.app.RES)
+        pixel_array = pg.pixelarray.PixelArray(image)
+        return pixel_array
 
     def get_prerendered_chars(self):
         char_colors = [(0, green, 0) for green in range(256)]
@@ -46,10 +54,16 @@ class Matrix:
     def draw(self):
         for y, row in enumerate(self.matrix):
             for x, char in enumerate(row):
-                pos = x * self.FONT_SIZE, y * self.FONT_SIZE
-                #char = self.font.render(char, False, (0, 170, 0))
-                char = self.prerendered_chars[(char, (0, 170, 0))]
-                self.app.surface.blit(char, pos)
+                if char:
+                    pos = x * self.FONT_SIZE, y * self.FONT_SIZE
+                    _, red, green, blue = pg.Color(self.image[pos])
+                    if red and green and blue:
+                        color = (red + green + blue) // 3
+                        color = 220 if 160 < color < 220 else color
+                        #char = self.font.render(char, False, (0, 170, 0))
+                        char = self.prerendered_chars[(char, (0, color , 0))]
+                        char.set_alpha(color + 60)
+                        self.app.surface.blit(char, pos)
 
 
 class MatrixVision:
@@ -72,7 +86,7 @@ class MatrixVision:
             [exit() for i in pg.event.get() if i.type == pg.QUIT]
             pg.display.flip()
             pg.display.set_caption(str(self.clock.get_fps()))
-            self.clock.tick(30)
+            self.clock.tick(144)
 
 
 if __name__ == '__main__':
