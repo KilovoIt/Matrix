@@ -1,5 +1,6 @@
 import numpy as np
 import pygame as pg
+import pygame.camera
 
 
 class Matrix:
@@ -17,6 +18,12 @@ class Matrix:
 
         self.image = self.get_image('USDA.png')
 
+    def get_frame(self):
+        image = app.cam.get_image()
+        image = pg.transform.scale(image, self.app.RES)
+        pixel_array = pg.pixelarray.PixelArray(image)
+        return pixel_array
+
     def get_image(self, path_to_file):
         image = pg.image.load(path_to_file)
         image = pg.transform.scale(image, self.app.RES)
@@ -33,7 +40,7 @@ class Matrix:
 
 
     def run(self):
-        frames =pg.time.get_ticks()
+        frames = pg.time.get_ticks()
         self.change_chars(frames)
         self.shift_columns(frames)
         self.draw()
@@ -52,6 +59,7 @@ class Matrix:
 
 
     def draw(self):
+        #self.image = self.get_frame()
         for y, row in enumerate(self.matrix):
             for x, char in enumerate(row):
                 if char:
@@ -68,12 +76,16 @@ class Matrix:
 
 class MatrixVision:
     def __init__(self):
-        self.RES = self.WIDTH, self.HEIGHT = 1400, 800
+        self.RES = self.WIDTH, self.HEIGHT = 960, 720
         pg.init()
         self.screen = pg.display.set_mode(self.RES)
         self.surface = pg.Surface(self.RES)
         self.clock = pg.time.Clock()
         self.matrix = Matrix(self)
+
+        
+        #self.cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
+        #self.cam.start()
 
     def draw(self):
         self.surface.fill(pg.Color('black'))
